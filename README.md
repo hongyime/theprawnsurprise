@@ -31,3 +31,7 @@ A retro-themed, chaotic decision-making web application featuring pixel art aest
    ```bash
    npm run build
    ```
+
+## License
+
+Apache-2.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE).
