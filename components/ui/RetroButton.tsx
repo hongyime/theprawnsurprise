@@ -17,16 +17,17 @@ export const RetroButton: React.FC<RetroButtonProps> = ({
   className, 
   ...props 
 }) => {
-  const baseStyles = "px-4 py-2 font-retro text-xs md:text-sm border-2 border-black shadow-retro transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-retro-active disabled:opacity-50 disabled:cursor-not-allowed";
+  const baseStyles = "min-h-11 px-4 py-2 font-retro font-bold text-sm border-3 border-black shadow-retro transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-retro-active disabled:opacity-50 disabled:cursor-not-allowed";
   
   const variants = {
-    primary: "bg-coral text-white hover:bg-red-400",
-    accent: "bg-zest text-black hover:bg-yellow-300",
+    primary: "bg-black text-white hover:bg-gray-800",
+    accent: "bg-black text-white hover:bg-gray-800",
     neutral: "bg-white text-black hover:bg-gray-100"
   };
 
   return (
     <button 
+      type="button"
       className={cn(baseStyles, variants[variant], className)} 
       {...props}
     >

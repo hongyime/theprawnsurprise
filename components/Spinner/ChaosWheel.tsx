@@ -1,12 +1,12 @@
-import React, { useState, useRef } from 'react';
-import { motion, useAnimation } from 'framer-motion';
+import React, { useState, useRef, useEffect } from 'react';
+import { motion, useAnimation, useReducedMotion } from 'framer-motion';
 import { Trash2 } from 'lucide-react';
 import { RetroButton } from '../ui/RetroButton';
 import { sanitizeInput } from '../../utils/sanitizer';
 import { SpinnerItem } from '../../types';
 
 // Theme colors for slices
-const SLICE_COLORS = ['#FF6F61', '#F4D03F', '#FFFFFF', '#0F4C81', '#333333'];
+const SLICE_COLORS = ['#FFFFFF', '#A3A3A3', '#000000', '#E5E5E5', '#525252'];
 
 // Helper to assign colors ensuring no adjacent duplicates
 const assignColors = (items: SpinnerItem[]): SpinnerItem[] => {
@@ -38,13 +38,21 @@ export const ChaosWheel: React.FC = () => {
   ]));
   const [inputValue, setInputValue] = useState('');
   const [isSpinning, setIsSpinning] = useState(false);
+  const [result, setResult] = useState<string | null>(null);
 
   const controls = useAnimation();
   const rotationRef = useRef(0);
+  const spinGeneration = useRef(0);
+  const reduceMotion = useReducedMotion();
+
+  useEffect(() => () => {
+    spinGeneration.current += 1;
+    controls.stop();
+  }, [controls]);
 
   const handleAddItem = (e?: React.FormEvent) => {
     e?.preventDefault();
-    if (items.length >= 10) return;
+    if (isSpinning || items.length >= 10) return;
 
     const cleanLabel = sanitizeInput(inputValue);
     if (cleanLabel.length > 0) {
@@ -57,6 +65,7 @@ export const ChaosWheel: React.FC = () => {
       const updatedList = [...items, newItem];
       setItems(assignColors(updatedList));
       setInputValue('');
+      setResult(null);
     }
   };
 
@@ -64,12 +73,15 @@ export const ChaosWheel: React.FC = () => {
     if (isSpinning) return;
     const filtered = items.filter(i => i.id !== id);
     setItems(assignColors(filtered));
+    setResult(null);
   };
 
   const handleSpin = async () => {
     if (isSpinning || items.length < 2) return;
 
     setIsSpinning(true);
+    setResult(null);
+    const generation = ++spinGeneration.current;
 
     // Random rotations: at least 5 full spins (1800 deg) + random offset
     const randomOffset = Math.random() * 360;
@@ -81,12 +93,15 @@ export const ChaosWheel: React.FC = () => {
     await controls.start({
       rotate: targetRotation,
       transition: {
-        duration: 4,
+        duration: reduceMotion ? 0.01 : 4,
         ease: [0.15, 0.85, 0.35, 1] // Custom cubic bezier for realistic slowdown
       }
     });
 
+    if (generation !== spinGeneration.current) return;
     rotationRef.current = targetRotation;
+    const pointerAngle = (360 - targetRotation % 360) % 360;
+    setResult(items[Math.floor(pointerAngle / 360 * items.length)].label);
     setIsSpinning(false);
   };
 
@@ -100,28 +115,35 @@ export const ChaosWheel: React.FC = () => {
   )`;
 
   return (
-    <div className="flex flex-col lg:flex-row items-start justify-center w-full max-w-4xl mx-auto gap-8 p-4">
+    <div className="flex flex-col lg:flex-row items-start justify-center w-full min-w-0 max-w-4xl mx-auto gap-8 py-4">
 
       {/* Wheel Section */}
       <div className="flex flex-col items-center w-full lg:w-1/2">
-        <div className="relative w-64 h-64 sm:w-80 sm:h-80 mb-8">
+        <div className="relative w-full max-w-64 sm:max-w-80 aspect-square mb-8">
           {/* Pointer */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-4 z-20">
             <div className="w-0 h-0 border-l-[15px] border-l-transparent border-r-[15px] border-r-transparent border-t-[25px] border-t-black drop-shadow-md"></div>
           </div>
 
           {/* Wheel - Clickable to spin */}
-          <motion.div
+          <button
+            type="button"
+            aria-label="Spin the wheel"
+            aria-disabled={isSpinning || items.length < 2}
             onClick={handleSpin}
+            className="block w-full h-full rounded-full border-3 border-black shadow-retro overflow-hidden relative cursor-pointer"
+          >
+          <motion.div
+            data-wheel-face
             animate={controls}
-            className="w-full h-full rounded-full border-4 border-black shadow-retro overflow-hidden relative cursor-pointer hover:scale-[1.02] transition-transform"
+            className="w-full h-full relative rounded-full overflow-hidden"
             style={{ background: items.length > 0 ? gradient : '#333' }}
           >
             {/* Slice Labels */}
             {items.length > 0 && items.map((item, i) => {
               // Calculate center angle of the slice
               const angle = (360 / items.length) * i + (360 / items.length) / 2;
-              const isLight = item.color === '#FFFFFF' || item.color === '#F4D03F' || item.color === '#FF6F61';
+              const isLight = ['#FFFFFF', '#A3A3A3', '#E5E5E5'].includes(item.color);
 
               return (
                 <div
@@ -151,26 +173,28 @@ export const ChaosWheel: React.FC = () => {
               )
             })}
           </motion.div>
+          </button>
         </div>
 
         {/* Instruction Text */}
-        <p className="font-retro text-zest text-[10px] sm:text-xs animate-pulse text-center">
-          {isSpinning ? 'SPINNING...' : items.length < 2 ? 'ADD AT LEAST 2 OPTIONS' : 'CLICK THE WHEEL TO SPIN'}
+        <p role="status" className="font-retro font-bold text-sm text-center">
+          {isSpinning ? 'SPINNING...' : result ? `RESULT: ${result}` : items.length < 2 ? 'ADD AT LEAST 2 OPTIONS' : 'PRESS THE WHEEL TO SPIN'}
         </p>
       </div>
 
       {/* Controls Section */}
-      <div className="flex flex-col w-full lg:w-1/2 bg-white/5 border-2 border-black p-4 shadow-retro">
-        <h3 className="font-retro text-sm mb-4 text-center">CHAOS OPTIONS ({items.length}/10)</h3>
+      <div className="flex flex-col w-full min-w-0 lg:w-1/2 bg-neutral-100 border-3 border-black p-3 sm:p-4 shadow-retro">
+        <h2 className="font-retro font-bold text-sm mb-4 text-center">CHAOS OPTIONS ({items.length}/10)</h2>
 
         <form onSubmit={handleAddItem} className="flex gap-2 mb-4 w-full">
           <input
             type="text"
+            aria-label="New wheel option"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             disabled={items.length >= 10 || isSpinning}
             placeholder={items.length >= 10 ? "Max reached" : "Add option..."}
-            className="flex-1 min-w-0 bg-white text-black font-sans px-2 sm:px-3 py-2 border-2 border-black focus:outline-none focus:shadow-retro transition-shadow text-sm"
+            className="flex-1 min-w-0 bg-white text-black font-sans px-2 sm:px-3 py-2 border-3 border-black text-sm"
           />
           <RetroButton type="submit" disabled={items.length >= 10 || isSpinning || !inputValue.trim()} className="shrink-0 px-2 sm:px-4">
             ADD
@@ -185,10 +209,11 @@ export const ChaosWheel: React.FC = () => {
                 <span className="truncate text-sm font-medium">{item.label}</span>
               </div>
               <button
+                type="button"
                 onClick={() => handleDeleteItem(item.id)}
                 disabled={isSpinning}
-                className="text-red-400 hover:text-red-500 disabled:opacity-50 p-1"
-                aria-label="Delete item"
+                className="text-black hover:bg-white disabled:opacity-50 p-3"
+                aria-label={`Delete ${item.label}`}
               >
                 <Trash2 size={16} />
               </button>

@@ -3,6 +3,7 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { Text, Float } from '@react-three/drei';
 import * as THREE from 'three';
 import { DieType } from '../../types';
+import { useReducedMotion } from 'framer-motion';
 
 // Use string tags for intrinsic elements to avoid TypeScript environment issues
 const Group = 'group' as any;
@@ -142,7 +143,7 @@ const getDieConfig = (type: DieType) => {
 
 // --- COMPONENT: THE DIE MESH ---
 
-const DieMesh = ({ type, result, isRolling }: { type: DieType, result: number | null, isRolling: boolean }) => {
+const DieMesh = ({ type, result, isRolling, reduceMotion }: { type: DieType, result: number | null, isRolling: boolean, reduceMotion: boolean }) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const config = useMemo(() => getDieConfig(type), [type]);
   const { geometry, faces, textOffset, fontSize } = config;
@@ -177,21 +178,20 @@ const DieMesh = ({ type, result, isRolling }: { type: DieType, result: number | 
   useFrame((state, delta) => {
     if (!meshRef.current) return;
 
-    if (isRolling) {
+    if (isRolling && !reduceMotion) {
       meshRef.current.rotation.x += rotationSpeed.current.x;
       meshRef.current.rotation.y += rotationSpeed.current.y;
       meshRef.current.rotation.z += rotationSpeed.current.z;
     } else if (result !== null && targetQuaternion) {
       // Smoothly slerp to target
-      meshRef.current.quaternion.slerp(targetQuaternion, 0.1);
+      meshRef.current.quaternion.slerp(targetQuaternion, reduceMotion ? 1 : 0.1);
     }
   });
 
   return (
     <Group>
         <Mesh ref={meshRef} geometry={geometry}>
-            {/* Coral material */}
-            <MeshStandardMaterial color="#FF6F61" roughness={0.4} metalness={0.1} flatShading />
+            <MeshStandardMaterial color="#FFFFFF" roughness={0.4} metalness={0.1} flatShading />
             
             {/* Render Numbers on Faces - Default Font */}
             {faces.map((face, i) => (
@@ -240,6 +240,7 @@ interface Die3DProps {
 }
 
 export const Die3D: React.FC<Die3DProps> = ({ type, value, isRolling }) => {
+  const reduceMotion = !!useReducedMotion();
   return (
     <div className="w-full h-full">
       <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
@@ -247,8 +248,8 @@ export const Die3D: React.FC<Die3DProps> = ({ type, value, isRolling }) => {
         <PointLight position={[10, 10, 10]} intensity={2} />
         <SpotLight position={[-10, -10, 10]} angle={0.3} />
 
-        <Float speed={isRolling ? 0 : 2} rotationIntensity={isRolling ? 0 : 0.5} floatIntensity={isRolling ? 0 : 0.5}>
-           <DieMesh type={type} result={value} isRolling={isRolling} />
+        <Float speed={isRolling || reduceMotion ? 0 : 2} rotationIntensity={isRolling || reduceMotion ? 0 : 0.5} floatIntensity={isRolling || reduceMotion ? 0 : 0.5}>
+           <DieMesh type={type} result={value} isRolling={isRolling} reduceMotion={reduceMotion} />
         </Float>
       </Canvas>
     </div>
