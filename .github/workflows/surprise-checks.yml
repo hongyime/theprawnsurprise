@@ -1,0 +1,22 @@
+# Retained manual diagnostics; automatic validation is consolidated in ci.yml.
+name: Surprise interaction checks
+'on':
+  workflow_dispatch: null
+permissions:
+  contents: read
+concurrency:
+  group: surprise-checks-${{ github.ref }}
+  cancel-in-progress: 'true'
+jobs:
+  interactions:
+    runs-on: ubuntu-latest
+    timeout-minutes: '10'
+    steps:
+    - uses: actions/checkout@v7
+    - uses: actions/setup-node@v7
+      with:
+        node-version: '24'
+        cache: npm
+    - run: npm ci
+    - run: npm test -- --maxWorkers=1 --no-file-parallelism
+    - run: npm run build

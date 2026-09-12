@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const ANSWERS = [
@@ -13,14 +13,19 @@ const ANSWERS = [
 export const Magic8Ball: React.FC = () => {
   const [answer, setAnswer] = useState<string | null>(null);
   const [isShaking, setIsShaking] = useState(false);
+  const answerTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => {
+    if (answerTimer.current !== null) clearTimeout(answerTimer.current);
+  }, []);
 
   const handleShake = () => {
-    if (isShaking) return;
+    if (answerTimer.current !== null) return;
     setIsShaking(true);
     setAnswer(null);
 
     // Shake time
-    setTimeout(() => {
+    answerTimer.current = setTimeout(() => {
+      answerTimer.current = null;
       const randomAnswer = ANSWERS[Math.floor(Math.random() * ANSWERS.length)];
       setAnswer(randomAnswer);
       setIsShaking(false);
@@ -29,9 +34,12 @@ export const Magic8Ball: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center justify-center w-full py-8">
-      <div 
+      <button
+        type="button"
+        aria-label="Ask the 8-ball"
+        aria-disabled={isShaking}
         onClick={handleShake}
-        className="cursor-pointer group relative"
+        className="cursor-pointer group relative w-full max-w-72 sm:max-w-96 aspect-square rounded-full"
       >
         {/* Ball Body */}
         <motion.div
@@ -41,13 +49,13 @@ export const Magic8Ball: React.FC = () => {
             rotate: [-5, 5, -5, 5, 0]
           } : {}}
           transition={{ duration: 0.5, repeat: isShaking ? 2 : 0 }}
-          className="w-72 h-72 sm:w-96 sm:h-96 rounded-full bg-black border-4 border-gray-800 shadow-[8px_8px_0px_0px_rgba(0,0,0,0.5)] flex items-center justify-center relative overflow-hidden"
+          className="w-full h-full rounded-full bg-black border-3 border-black shadow-retro flex items-center justify-center relative overflow-hidden"
         >
           {/* Shine effect */}
           <div className="absolute top-10 left-10 w-24 h-24 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
 
           {/* Inner Window */}
-          <div className="w-40 h-40 sm:w-48 sm:h-48 rounded-full bg-indigo-900/50 border-4 border-gray-800 flex items-center justify-center relative shadow-inner">
+          <div aria-hidden="true" className="w-40 h-40 sm:w-48 sm:h-48 rounded-full bg-neutral-800 border-3 border-neutral-500 flex items-center justify-center relative shadow-inner">
             
             <AnimatePresence mode="wait">
               {!isShaking && answer && (
@@ -58,14 +66,14 @@ export const Magic8Ball: React.FC = () => {
                   transition={{ duration: 1, type: 'spring' }}
                   className="w-full h-full flex items-center justify-center"
                 >
-                    {/* Blue Triangle - Pointing Down */}
+                    {/* Answer triangle pointing down */}
                     <div className="relative w-32 h-32">
-                        <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full text-blue-700 fill-current drop-shadow-lg filter brightness-75">
+                        <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full text-white fill-current">
                             <polygon points="5,5 95,5 50,95" />
                         </svg>
                          {/* Text positioned in the wider top part of the inverted triangle */}
                          <div className="absolute top-[18%] left-1/2 -translate-x-1/2 w-24 flex items-center justify-center">
-                             <p className="text-center text-blue-100 font-sans text-[0.6rem] sm:text-[0.65rem] font-bold leading-tight uppercase tracking-wider drop-shadow-md select-none">
+                             <p className="text-center text-black font-sans text-[0.6rem] sm:text-[0.65rem] font-bold leading-tight uppercase tracking-wider select-none">
                                 {answer}
                             </p>
                          </div>
@@ -85,16 +93,16 @@ export const Magic8Ball: React.FC = () => {
             </AnimatePresence>
 
             {isShaking && (
-                <div className="absolute inset-0 bg-indigo-950 flex items-center justify-center rounded-full">
-                    <div className="w-full h-full bg-indigo-900/40 animate-pulse rounded-full"></div>
+                <div className="absolute inset-0 bg-neutral-900 flex items-center justify-center rounded-full">
+                    <div className="w-full h-full bg-neutral-700/40 animate-pulse rounded-full"></div>
                 </div>
             )}
           </div>
         </motion.div>
-      </div>
+      </button>
       
-      <p className="mt-8 font-retro text-zest text-xs animate-bounce text-center w-full px-4">
-        {isShaking ? 'CONSULTING THE VOID...' : 'CLICK THE ORB TO SEEK WISDOM'}
+      <p role="status" className="mt-8 font-retro font-bold text-sm text-center w-full px-4">
+        {isShaking ? 'CONSULTING THE VOID...' : answer ?? 'PRESS THE ORB TO SEEK WISDOM'}
       </p>
     </div>
   );
