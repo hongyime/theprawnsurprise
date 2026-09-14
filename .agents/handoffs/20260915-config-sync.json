@@ -1,0 +1,9 @@
+{
+  "repository": "hongyime/theprawnsurprise",
+  "review": "https://github.com/hongyime/theprawnsurprise/pull/180",
+  "branch": "chore/config-sync-34864413485-1",
+  "changes": "Reconcile the shared heartbeat and shallow fail-closed LFS guard while preserving main's setup-python version, pinned labeler SHA and ignore rules.",
+  "validation": "Application tests and production build pass locally. Validate the candidate heartbeat and LFS policy fixtures, then require current-head Build and Vercel success before ordinary merge.",
+  "preservation": "Application code, dependency locks, Vercel configuration and retained data are unchanged. The raw clone's pre-existing local ignore edit is outside this PR.",
+  "release_gate": "Verify the merged SHA reaches a READY production deployment and the existing tools work in the browser. Do not upgrade plans or retry around a Free build limit."
+}
