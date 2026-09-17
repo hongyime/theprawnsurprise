@@ -6,6 +6,8 @@ import { Magic8Ball } from './components/MagicBall/Magic8Ball';
 import { cn } from './components/ui/RetroButton';
 import { Dices, Disc, Sparkles } from 'lucide-react';
 import { MotionConfig } from 'framer-motion';
+import { NeoCard } from './components/ui/NeoCard';
+import { NeoButton } from './components/ui/NeoButton';
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<Tab>(Tab.DICE);
@@ -50,12 +52,12 @@ const App: React.FC = () => {
 
       {/* Main Content Area */}
       <main className="flex-1 w-full max-w-4xl mx-auto p-4 mb-12">
-        <div className="bg-white border-3 border-black p-3 sm:p-8 shadow-retro min-h-[400px] flex items-center justify-center relative">
+        <NeoCard className="min-h-[400px] flex items-center justify-center relative sm:p-8">
 
           {activeTab === Tab.DICE && <DiceRoller />}
           {activeTab === Tab.SPINNER && <ChaosWheel />}
           {activeTab === Tab.MAGIC_BALL && <Magic8Ball />}
-        </div>
+        </NeoCard>
       </main>
 
       {/* Footer */}
@@ -75,12 +77,11 @@ interface TabButtonProps {
 
 const TabButton: React.FC<TabButtonProps> = ({ isActive, onClick, icon, label }) => {
   return (
-    <button
-      type="button"
+    <NeoButton
       aria-pressed={isActive}
       onClick={onClick}
       className={cn(
-        "min-h-12 flex flex-col sm:flex-row gap-1 sm:gap-0 items-center justify-center px-1 sm:px-4 py-2 sm:py-3 font-retro font-bold text-[10px] sm:text-sm border-3 border-black transition-all whitespace-nowrap",
+        "min-h-12 flex flex-col sm:flex-row gap-1 sm:gap-0 items-center justify-center px-1 sm:px-4 py-2 sm:py-3 font-retro font-bold text-[10px] sm:text-sm border-3 border-black transition-all whitespace-nowrap w-full",
         isActive
           ? "bg-black text-white shadow-none translate-y-1 z-10 relative"
           : "bg-white text-black shadow-retro hover:bg-gray-100 hover:translate-y-[2px] hover:shadow-retro-active"
@@ -88,7 +89,7 @@ const TabButton: React.FC<TabButtonProps> = ({ isActive, onClick, icon, label })
     >
       {icon}
       {label}
-    </button>
+    </NeoButton>
   );
 };
 

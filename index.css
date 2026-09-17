@@ -1,13 +1,35 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'Space Grotesk';
+  src: url('/fonts/SpaceGrotesk.woff2') format('woff2');
+  font-weight: 100 900;
+  font-display: swap;
+}
+
 @theme {
   --color-ocean: #FFFFFF;
   --color-coral: #000000;
   --color-zest: #A3A3A3;
-  --font-retro: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
-  --font-sans: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --font-retro: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
   --shadow-retro: 4px 4px 0px 0px rgba(0,0,0,1);
   --shadow-retro-active: 2px 2px 0px 0px rgba(0,0,0,1);
+}
+
+:root {
+  --neo-bg: #fff;
+  --neo-fg: #000;
+  --neo-border: #000;
+  --neo-accent: #00d4d4;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --neo-bg: #0d1117;
+    --neo-fg: #e6edf3;
+    --neo-border: #30363d;
+  }
 }
 
 body {
@@ -30,5 +52,29 @@ button:not(:disabled) { cursor: pointer; }
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+@layer components {
+  .neo-card {
+    border: 2px solid var(--neo-border);
+    box-shadow: 4px 4px 0 var(--neo-border);
+    background: var(--neo-bg);
+    border-radius: 0;
+    padding: 16px;
+  }
+
+  .neo-btn {
+    border: 2px solid var(--neo-border);
+    box-shadow: 3px 3px 0 var(--neo-border);
+    background: var(--neo-bg);
+    font-weight: 600;
+    cursor: pointer;
+    padding: 8px 16px;
+  }
+
+  .neo-btn:active {
+    box-shadow: 0 0 0;
+    transform: translate(2px, 2px);
   }
 }
