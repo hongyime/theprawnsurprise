@@ -13,12 +13,12 @@ const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<Tab>(Tab.DICE);
 
   return (
-    <MotionConfig reducedMotion="user"><div className="min-h-screen bg-white text-black flex flex-col items-center">
+    <MotionConfig reducedMotion="never"><div className="min-h-screen bg-white text-black flex flex-col items-center">
 
       {/* Header */}
       <header className="w-full border-b-3 border-black px-4 py-8 sm:py-12">
         <div className="max-w-4xl mx-auto">
-          <a href="https://theprawnprojects.hong-yi.me" className="inline-block font-bold text-xs tracking-widest underline underline-offset-4 mb-5">THE PRAWN PROJECTS ↗</a>
+
           <h1 className="font-retro font-bold text-3xl sm:text-5xl tracking-tight leading-tight">
             THE PRAWN SURPRISE <span className="text-neutral-500">?!</span>
           </h1>
