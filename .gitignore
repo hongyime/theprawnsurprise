@@ -28,6 +28,10 @@ dist-ssr
 
 
 
+
+.vercel
+.env*
+
 # AI / editor dot directories (managed via sourcerepo)
 .*
 !.github/
@@ -63,6 +67,3 @@ skills/
 skills-lock.json
 docs/
 # End AI / editor dot directories (managed via sourcerepo)
-
-.vercel
-.env*
