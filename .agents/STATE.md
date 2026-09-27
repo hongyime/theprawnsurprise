@@ -43,3 +43,7 @@ Validate one queued preview before merging.
 1. Lift the Vercel deployment hold (after 2026-09-16 07:14 UTC)
 2. Validate PR #181 preview deployment in browser
 3. Merge if preview passes; do not add new deploys until previous one is verified
+
+## Privacy maintenance - 2026-09-27
+
+Remove the optional personal security contact while retaining private vulnerability-reporting guidance. The narrow documentation patch is prepared from the current default branch; staged whitespace and the inherited identity hook are publication checks. Application behavior is unchanged.
