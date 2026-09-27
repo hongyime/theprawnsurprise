@@ -17,3 +17,5 @@ directly to `@types/three/index.d.ts`; (2) `framer-motion`, `lucide-react`, `@ty
 node_modules were partially installed (missing `.d.ts` files and sub-directories) → fixed by
 force-reinstalling each package; (3) `motion-dom`/`motion-utils` (framer-motion transitive deps)
 were absent → added as direct deps to guarantee they are installed.
+
+- 2026-09-27: Remove the optional personal security contact and preserve private reporting guidance through a reviewed maintenance pull request.
