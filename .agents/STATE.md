@@ -9,7 +9,7 @@ Centered the title/subtitle and repaired dice/wheel motion. The user authorized 
 - Title and subtitle centered on desktop/mobile.
 - d4/d6/d8/d10 visibly tumble across three axes for 1.4 seconds, then land upright on the result. Repeat outcomes animate; changing dice cancels the previous roll. Camera clearance keeps rotating corners in frame.
 - Wheel accelerates smoothly and slows to a stop over 4.5 seconds. Pointer lands inside the selected slice; rotation is normalized between spins.
-- Click-triggered animations default on consistently, matching the existing 8-ball behavior. One Animate rolls switch disables motion across the tools, including on systems requesting reduced motion.
+- User correction: animations must always be on, with no checkbox or user option. Removed the Animate rolls control and its state; all three toys animate on interaction.
 
 ## Verification
 
@@ -20,4 +20,8 @@ Centered the title/subtitle and repaired dice/wheel motion. The user authorized 
 
 ## Publication
 
-GitHub rejected the authorized direct push because main requires a PR plus Build and Vercel checks. PR #204 carries the verified implementation: https://github.com/hongyime/theprawnsurprise/pull/204. Merge through the required checks into main, then verify the production bundle. The user explicitly reiterated that the work must reach main.
+PR #204 merged into main as ef0c97477498b48a3145021c571bacc79a26a14d on 2026-10-01. Required Build/Vercel checks passed, and Vercel production deployment completed. The public site was verified to serve the tested index-DViMAyEf.js bundle with centered headings and animations enabled. Task complete.
+
+## Follow-up — 2026-10-01
+
+User explicitly requested removing the checkbox and publishing from current main. The follow-up is based on main at ef0c974; validate and merge through the required Build/Vercel checks, then verify production has no checkbox.

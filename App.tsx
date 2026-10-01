@@ -11,13 +11,9 @@ import { NeoButton } from './components/ui/NeoButton';
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<Tab>(Tab.DICE);
-  // These animations are explicitly requested by pressing a toy. Keep that
-  // behavior consistent across all three, with an in-app option to disable it.
-  const [animateRolls, setAnimateRolls] = useState(true);
-  const reduceMotion = !animateRolls;
 
   return (
-    <MotionConfig reducedMotion={reduceMotion ? 'always' : 'never'}><div className="min-h-screen bg-white text-black flex flex-col items-center">
+    <MotionConfig reducedMotion="never"><div className="min-h-screen bg-white text-black flex flex-col items-center">
 
       {/* Header */}
       <header className="w-full border-b-3 border-black px-4 py-8 sm:py-12">
@@ -27,15 +23,6 @@ const App: React.FC = () => {
             THE PRAWN SURPRISE <span className="text-neutral-500">?!</span>
           </h1>
           <p className="mt-3 text-neutral-600">Roll the dice. Let the wheel decide. Ask the unknown.</p>
-          <label className="inline-flex items-center gap-2 mt-4 text-sm cursor-pointer">
-            <input
-              type="checkbox"
-              checked={animateRolls}
-              onChange={event => setAnimateRolls(event.target.checked)}
-              className="accent-black w-4 h-4"
-            />
-            Animate rolls
-          </label>
         </div>
       </header>
 
@@ -67,8 +54,8 @@ const App: React.FC = () => {
       <main className="flex-1 w-full max-w-4xl mx-auto p-4 mb-12">
         <NeoCard className="min-h-[400px] flex items-center justify-center relative sm:p-8">
 
-          {activeTab === Tab.DICE && <DiceRoller reduceMotion={reduceMotion} />}
-          {activeTab === Tab.SPINNER && <ChaosWheel reduceMotion={reduceMotion} />}
+          {activeTab === Tab.DICE && <DiceRoller />}
+          {activeTab === Tab.SPINNER && <ChaosWheel />}
           {activeTab === Tab.MAGIC_BALL && <Magic8Ball />}
         </NeoCard>
       </main>

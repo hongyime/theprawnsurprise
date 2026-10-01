@@ -27,3 +27,7 @@ were absent → added as direct deps to guarantee they are installed.
 **2026-10-01** — Verified 26 tests, successful production build/typecheck, and 20 desktop/mobile browser checks with real changing canvas frames. OS reduced-motion emulation no longer silently disables requested rolls. Slightly widened camera framing after a tumble screenshot exposed a near-edge cube corner.
 
 **2026-10-01** — GitHub rejected direct main publication (GH006: PR required plus Build and Vercel checks). PR #204 is the necessary merge route; preserve branch protection and merge after both checks pass. User explicitly reiterated merge into main.
+
+**2026-10-01** — PR #204 merged into main (ef0c974); required Build/Vercel checks and production deployment passed. Public site serves the tested index-DViMAyEf.js bundle with centered headings and Animate rolls enabled. Task complete.
+
+**2026-10-01** — User correction: remove the Animate rolls checkbox; animations must always be on with no option. Follow-up starts from current main at ef0c974 and removes only the toggle and its state/prop wiring.
