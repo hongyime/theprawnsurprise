@@ -20,4 +20,4 @@ Centered the title/subtitle and repaired dice/wheel motion. The user authorized 
 
 ## Publication
 
-Publish the verified commit directly to main. Vercel deploys automatically; verify the live production bundle before reporting deployment complete. Historical styling/deployment-hold notes were stale and no current hold applies.
+GitHub rejected the authorized direct push because main requires a PR plus Build and Vercel checks. PR #204 carries the verified implementation: https://github.com/hongyime/theprawnsurprise/pull/204. Merge through the required checks into main, then verify the production bundle. The user explicitly reiterated that the work must reach main.
