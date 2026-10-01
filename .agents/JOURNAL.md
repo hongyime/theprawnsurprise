@@ -19,3 +19,11 @@ force-reinstalling each package; (3) `motion-dom`/`motion-utils` (framer-motion 
 were absent → added as direct deps to guarantee they are installed.
 
 - 2026-09-27: Remove the optional personal security contact and preserve private reporting guidance through a reviewed maintenance pull request.
+
+**2026-10-01** — User authorized direct main publication for centered headings and dice/wheel motion fixes. Use one motion preference with a user opt-in; derive dice completion and visible results from the same animation timeline.
+
+**2026-10-01** — Refined motion policy to match the explicit user request and existing 8-ball behavior: click-triggered animations stay enabled by default even when the OS requests reduced motion. One visible Animate rolls switch disables motion across all toys. Tests cover all 28 die faces, repeated outcomes, cancellation, and smooth landing.
+
+**2026-10-01** — Verified 26 tests, successful production build/typecheck, and 20 desktop/mobile browser checks with real changing canvas frames. OS reduced-motion emulation no longer silently disables requested rolls. Slightly widened camera framing after a tumble screenshot exposed a near-edge cube corner.
+
+**2026-10-01** — GitHub rejected direct main publication (GH006: PR required plus Build and Vercel checks). PR #204 is the necessary merge route; preserve branch protection and merge after both checks pass. User explicitly reiterated merge into main.

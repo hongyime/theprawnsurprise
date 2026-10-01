@@ -2,8 +2,8 @@ import React, { useMemo, useRef, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { DieType } from '../../types';
-import { useReducedMotion } from 'framer-motion';
 import { getDieConfig, faceQuaternion, type DieFace } from './diceGeometry';
+import { createRollSampler, ROLL_DURATION_MS } from './diceMotion';
 
 function FaceNumber({ face, fontSize }: { face: DieFace; fontSize: number }) {
   // Ten possible numbers need only a small local texture, not a font loader,
@@ -40,29 +40,33 @@ function DieMesh({ type, result, isRolling, reduceMotion }: {
   const floatRef = useRef<THREE.Group>(null);
   const { geometry, faces, fontSize } = useMemo(() => getDieConfig(type), [type]);
   useEffect(() => () => geometry.dispose(), [geometry]);
-  const rotationSpeed = useRef(new THREE.Vector3(0.16, 0.23, 0.19));
+  const roll = useRef({ start: new THREE.Quaternion(), startedAt: 0 });
+  const sampleRoll = useMemo(createRollSampler, []);
   const targetQuaternion = useMemo(() => {
     const face = faces.find(candidate => candidate.value === result);
     return face ? faceQuaternion(face.normal).invert() : null;
   }, [result, faces]);
 
-  useFrame((state, delta) => {
-    if (!meshRef.current || !floatRef.current) return;
-    const floating = !isRolling && !reduceMotion;
-    const time = state.clock.elapsedTime;
-    floatRef.current.position.y = floating ? Math.sin(time) * 0.05 : 0;
-    floatRef.current.rotation.set(
-      floating ? Math.cos(time / 2) * 0.025 : 0,
-      floating ? Math.sin(time / 2) * 0.025 : 0,
-      floating ? Math.sin(time / 2) * 0.0125 : 0,
-    );
-    if (isRolling && !reduceMotion) {
-      const step = Math.min(delta, 0.05) * 60;
-      meshRef.current.rotation.x += rotationSpeed.current.x * step;
-      meshRef.current.rotation.y += rotationSpeed.current.y * step;
-      meshRef.current.rotation.z += rotationSpeed.current.z * step;
+  useEffect(() => {
+    if (!meshRef.current) return;
+    if (isRolling) {
+      roll.current.start.copy(meshRef.current.quaternion);
+      roll.current.startedAt = performance.now();
     } else if (targetQuaternion) {
-      meshRef.current.quaternion.slerp(targetQuaternion, reduceMotion ? 1 : 1 - Math.exp(-6 * delta));
+      meshRef.current.quaternion.copy(targetQuaternion);
+    }
+  }, [isRolling, targetQuaternion]);
+
+  useFrame(() => {
+    if (!meshRef.current || !floatRef.current) return;
+    if (isRolling && !reduceMotion && targetQuaternion) {
+      const progress = (performance.now() - roll.current.startedAt) / ROLL_DURATION_MS;
+      floatRef.current.position.y = sampleRoll(
+        meshRef.current.quaternion, roll.current.start, targetQuaternion, progress,
+      );
+    } else if (targetQuaternion) {
+      floatRef.current.position.y = 0;
+      meshRef.current.quaternion.copy(targetQuaternion);
     }
   });
   return (
@@ -83,17 +87,17 @@ interface Die3DProps {
   type: DieType;
   value: number | null;
   isRolling: boolean;
+  reduceMotion: boolean;
 }
 
-export const Die3D: React.FC<Die3DProps> = ({ type, value, isRolling }) => {
-  const reduceMotion = !!useReducedMotion();
+export const Die3D: React.FC<Die3DProps> = ({ type, value, isRolling, reduceMotion }) => {
   return (
     <div className="w-full h-full">
-      <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
+      <Canvas dpr={[1, 1.5]} camera={{ position: [0, 0, 5.4], fov: 45 }}>
         <ambientLight intensity={1.5} />
         <pointLight position={[10, 10, 10]} intensity={2} />
         <spotLight position={[-10, -10, 10]} angle={0.3} />
-        <DieMesh type={type} result={value} isRolling={isRolling} reduceMotion={reduceMotion} />
+        <DieMesh key={type} type={type} result={value} isRolling={isRolling} reduceMotion={reduceMotion} />
       </Canvas>
     </div>
   );
