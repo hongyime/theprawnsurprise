@@ -1,49 +1,23 @@
 # Agent State — theprawnsurprise
 
-## Current status
+## Completed — 2026-10-01
 
-**IDLE** — Prawn UI styling PR open, awaiting Vercel deployment window.
+Centered the title/subtitle and repaired dice/wheel motion. The user authorized direct publication to main and its automatic Vercel deployment. Changes were prepared from main at `5b7ef13`; unrelated edits in other checkouts were preserved.
 
-## Last task completed
+## Behavior
 
-**2026-09-17** — Apply Prawn UI visual style (branch `maintenance/prawn-ui-20260916`, PR #181)
+- Title and subtitle centered on desktop/mobile.
+- d4/d6/d8/d10 visibly tumble across three axes for 1.4 seconds, then land upright on the result. Repeat outcomes animate; changing dice cancels the previous roll. Camera clearance keeps rotating corners in frame.
+- Wheel accelerates smoothly and slows to a stop over 4.5 seconds. Pointer lands inside the selected slice; rotation is normalized between spins.
+- Click-triggered animations default on consistently, matching the existing 8-ball behavior. One Animate rolls switch disables motion across the tools, including on systems requesting reduced motion.
 
-### What was done
-- Self-hosted Space Grotesk variable font → `public/fonts/SpaceGrotesk.woff2`
-- Added CSS custom properties (`--neo-bg/fg/border/accent`), dark-mode overrides,
-  `@font-face`, and `.neo-card`/`.neo-btn` component classes to `index.css`
-- Created `components/ui/NeoCard.tsx` and `components/ui/NeoButton.tsx`
-- Updated `App.tsx`: main content wrapped with `<NeoCard>`, tab buttons use `<NeoButton>`
-- Three.js canvas components untouched
+## Verification
 
-### Build fixes bundled in same PR
-- Upgraded `lucide-react` ^1.25.0 → ^1.47.0, `@types/three` ^0.185.1 → ^0.185.4
-- Added `motion-dom`/`motion-utils` as direct deps (framer-motion@12 transitive deps
-  were missing from local node_modules)
-- Added `tsconfig.json` `paths` override for `three` → `@types/three/index.d.ts`
-  (TypeScript 7 bundler-mode broke re-export chains inside `@types/three/src/`)
+- 26 unit/interaction tests passed, including every die face, repeated outcomes, cancellation and landing continuity.
+- Typecheck and production build passed; existing large-bundle warning remains.
+- 20 production-build browser checks passed at desktop/mobile sizes: visible changing die frames, repeated rolls/spins, centered headings, matching wheel result, motion switch, 8-ball and no page errors. Mobile checks explicitly requested OS reduced motion.
+- Focused animation framing checks passed for all four dice after the final camera-clearance adjustment.
 
-### Verification
-- `npm run build` — typecheck + vite build ✓ (5.78 s)
-- `npm test` — 2 test files, 13 tests, all passed ✓
+## Publication
 
-## Open PR
-
-- **#181** `feat(ui): apply Prawn UI visual style — NeoCard, NeoButton, Space Grotesk font`
-  https://github.com/hongyime/theprawnsurprise/pull/181
-  Branch: `maintenance/prawn-ui-20260916`
-
-## Deployment hold
-
-Per `AGENTS.md`, Vercel deployments are on hold until ≥ 2026-09-16 07:14 UTC.
-Validate one queued preview before merging.
-
-## Next steps
-
-1. Lift the Vercel deployment hold (after 2026-09-16 07:14 UTC)
-2. Validate PR #181 preview deployment in browser
-3. Merge if preview passes; do not add new deploys until previous one is verified
-
-## Privacy maintenance - 2026-09-27
-
-Remove the optional personal security contact while retaining private vulnerability-reporting guidance. The narrow documentation patch is prepared from the current default branch; staged whitespace and the inherited identity hook are publication checks. Application behavior is unchanged.
+Publish the verified commit directly to main. Vercel deploys automatically; verify the live production bundle before reporting deployment complete. Historical styling/deployment-hold notes were stale and no current hold applies.

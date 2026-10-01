@@ -2,8 +2,13 @@ import React, { useState, useRef, useEffect } from 'react';
 import { DieType } from '../../types';
 import { RetroButton } from '../ui/RetroButton';
 import { Die3D } from './Die3D';
+import { ROLL_DURATION_MS } from './diceMotion';
 
-export const DiceRoller: React.FC = () => {
+interface DiceRollerProps {
+  reduceMotion?: boolean;
+}
+
+export const DiceRoller: React.FC<DiceRollerProps> = ({ reduceMotion = false }) => {
   const [selectedDie, setSelectedDie] = useState<DieType>(DieType.D6);
   const [result, setResult] = useState<number | null>(1);
   const [isRolling, setIsRolling] = useState(false);
@@ -18,14 +23,13 @@ export const DiceRoller: React.FC = () => {
   const rollDice = () => {
     if (rollTimer.current !== null) return;
     setIsRolling(true);
-    setResult(null);
+    // Choose the destination before the tumble so the final frame and result agree.
+    setResult(Math.floor(Math.random() * selectedDie) + 1);
 
     rollTimer.current = setTimeout(() => {
       rollTimer.current = null;
-      const newResult = Math.floor(Math.random() * selectedDie) + 1;
-      setResult(newResult);
       setIsRolling(false);
-    }, 800);
+    }, reduceMotion ? 0 : ROLL_DURATION_MS);
   };
 
   return (
@@ -40,7 +44,7 @@ export const DiceRoller: React.FC = () => {
         className="relative flex items-center justify-center w-48 h-48 sm:w-64 sm:h-64 md:w-80 md:h-80 bg-neutral-100 border-3 border-black shadow-retro overflow-hidden cursor-pointer hover:bg-neutral-200 transition-colors active:scale-95 duration-100"
       >
         <div aria-hidden="true" className="w-full h-full pointer-events-none">
-          <Die3D type={selectedDie} value={result} isRolling={isRolling} />
+          <Die3D type={selectedDie} value={result} isRolling={isRolling} reduceMotion={reduceMotion} />
         </div>
       </button>
 

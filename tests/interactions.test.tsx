@@ -3,12 +3,13 @@ import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { DiceRoller } from '../components/Dice/DiceRoller';
 import { Magic8Ball } from '../components/MagicBall/Magic8Ball';
+import { ROLL_DURATION_MS } from '../components/Dice/diceMotion';
 
 // Test the controls and timers independently of GPU rendering. The real 3D
 // canvas remains covered by the desktop/mobile production browser checks.
 vi.mock('../components/Dice/Die3D', () => ({
-  Die3D: ({ type, value }: { type: number; value: number | null }) =>
-    <output data-die={type}>{value ?? 'pending'}</output>,
+  Die3D: ({ type, value, isRolling }: { type: number; value: number | null; isRolling: boolean }) =>
+    <output data-die={type}>{isRolling ? 'pending' : value}</output>,
 }));
 
 let host: HTMLDivElement;
@@ -39,13 +40,13 @@ describe('dice controls', () => {
     act(() => root.render(<DiceRoller />));
     selectDie('d10');
     roll();
-    act(() => vi.advanceTimersByTime(400));
+    act(() => vi.advanceTimersByTime(ROLL_DURATION_MS / 2));
     selectDie('d4');
     roll();
-    act(() => vi.advanceTimersByTime(400));
+    act(() => vi.advanceTimersByTime(ROLL_DURATION_MS / 2));
     expect(host.textContent).toContain('ROLLING...');
     expect(host.querySelector('output')!.textContent).toBe('pending');
-    act(() => vi.advanceTimersByTime(400));
+    act(() => vi.advanceTimersByTime(ROLL_DURATION_MS / 2));
     expect(host.querySelector('output')!.textContent).toBe('4');
     expect(host.textContent).not.toContain('ROLLING...');
   });
@@ -55,7 +56,7 @@ describe('dice controls', () => {
     selectDie('d10');
     roll();
     selectDie('d4');
-    act(() => vi.advanceTimersByTime(1000));
+    act(() => vi.advanceTimersByTime(ROLL_DURATION_MS));
     expect(host.querySelector('output')!.getAttribute('data-die')).toBe('4');
     expect(host.querySelector('output')!.textContent).toBe('1');
   });
@@ -65,6 +66,29 @@ describe('dice controls', () => {
     roll();
     act(() => root.render(<p>Another tool</p>));
     expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it.each([4, 6, 8, 10])('reveals the d%i result only after landing and supports repeated outcomes', type => {
+    act(() => root.render(<DiceRoller />));
+    selectDie(`d${type}`);
+    for (let attempt = 0; attempt < 2; attempt++) {
+      roll();
+      roll(); // An extra click must not schedule a second result.
+      expect(vi.getTimerCount()).toBe(1);
+      act(() => vi.advanceTimersByTime(ROLL_DURATION_MS - 1));
+      expect(host.textContent).toContain('ROLLING...');
+      act(() => vi.advanceTimersByTime(1));
+      expect(host.querySelector('output')!.textContent).toBe(String(type));
+      expect(host.textContent).toContain(`RESULT: ${type}`);
+    }
+  });
+
+  it('does not make people wait for a disabled animation', () => {
+    act(() => root.render(<DiceRoller reduceMotion />));
+    roll();
+    act(() => vi.advanceTimersByTime(0));
+    expect(host.textContent).toContain('RESULT: 6');
+    expect(host.textContent).not.toContain('ROLLING...');
   });
 });
 

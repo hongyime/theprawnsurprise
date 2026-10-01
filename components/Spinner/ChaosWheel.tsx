@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { motion, useAnimation, useReducedMotion } from 'framer-motion';
+import { motion, useAnimation } from 'framer-motion';
 import { Trash2 } from 'lucide-react';
 import { RetroButton } from '../ui/RetroButton';
 import { sanitizeInput } from '../../utils/sanitizer';
@@ -31,7 +31,11 @@ const assignColors = (items: SpinnerItem[]): SpinnerItem[] => {
   return newItems;
 };
 
-export const ChaosWheel: React.FC = () => {
+interface ChaosWheelProps {
+  reduceMotion?: boolean;
+}
+
+export const ChaosWheel: React.FC<ChaosWheelProps> = ({ reduceMotion = false }) => {
   const [items, setItems] = useState<SpinnerItem[]>(assignColors([
     { id: '1', label: 'Yes', color: '' },
     { id: '2', label: 'No', color: '' },
@@ -43,7 +47,6 @@ export const ChaosWheel: React.FC = () => {
   const controls = useAnimation();
   const rotationRef = useRef(0);
   const spinGeneration = useRef(0);
-  const reduceMotion = useReducedMotion();
 
   useEffect(() => () => {
     spinGeneration.current += 1;
@@ -83,25 +86,29 @@ export const ChaosWheel: React.FC = () => {
     setResult(null);
     const generation = ++spinGeneration.current;
 
-    // Random rotations: at least 5 full spins (1800 deg) + random offset
-    const randomOffset = Math.random() * 360;
-    const totalRotation = 1800 + randomOffset;
+    // Land inside a slice, away from a divider, so the pointer is unambiguous.
+    const sliceAngle = 360 / items.length;
+    const selectedIndex = Math.floor(Math.random() * items.length);
+    const pointerAngle = (selectedIndex + 0.2 + Math.random() * 0.6) * sliceAngle;
+    const landingRotation = (360 - pointerAngle) % 360;
+    const remainingRotation = (landingRotation - rotationRef.current + 360) % 360;
 
     // We add to the current rotation so it spins forward continuously
-    const targetRotation = rotationRef.current + totalRotation;
+    const targetRotation = rotationRef.current + 1800 + remainingRotation;
 
     await controls.start({
       rotate: targetRotation,
       transition: {
-        duration: reduceMotion ? 0.01 : 4,
-        ease: [0.15, 0.85, 0.35, 1] // Custom cubic bezier for realistic slowdown
+        duration: reduceMotion ? 0 : 4.5,
+        ease: [0.25, 0, 0.15, 1] // Accelerate smoothly, then coast to a gentle stop.
       }
     });
 
     if (generation !== spinGeneration.current) return;
-    rotationRef.current = targetRotation;
-    const pointerAngle = (360 - targetRotation % 360) % 360;
-    setResult(items[Math.floor(pointerAngle / 360 * items.length)].label);
+    // Equivalent orientation, bounded angles: repeated spins never accumulate turns.
+    rotationRef.current = landingRotation;
+    controls.set({ rotate: landingRotation });
+    setResult(items[selectedIndex].label);
     setIsSpinning(false);
   };
 
@@ -137,7 +144,7 @@ export const ChaosWheel: React.FC = () => {
             data-wheel-face
             animate={controls}
             className="w-full h-full relative rounded-full overflow-hidden"
-            style={{ background: items.length > 0 ? gradient : '#333' }}
+            style={{ background: items.length > 0 ? gradient : '#333', willChange: isSpinning ? 'transform' : undefined }}
           >
             {/* Slice Labels */}
             {items.length > 0 && items.map((item, i) => {
