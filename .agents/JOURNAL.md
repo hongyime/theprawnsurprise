@@ -17,3 +17,7 @@ directly to `@types/three/index.d.ts`; (2) `framer-motion`, `lucide-react`, `@ty
 node_modules were partially installed (missing `.d.ts` files and sub-directories) → fixed by
 force-reinstalling each package; (3) `motion-dom`/`motion-utils` (framer-motion transitive deps)
 were absent → added as direct deps to guarantee they are installed.
+
+**2026-10-01** — Centered headings and fixed d4/d6/d8/d10 rolling plus smooth wheel motion via PR #204, merged to main at ef0c974. All 26 tests and 20 desktop/mobile browser checks passed. Vercel production deployment completed and the live tested bundle was verified. Unrelated edits in this checkout were preserved.
+
+**2026-10-01** — User explicitly requested always-on animations with no checkbox. Removed the toggle in PR #205, merged into main at 8adf9cf. All 26 tests, build, required checks and Vercel production deployment passed.
